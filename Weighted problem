@@ -1,0 +1,57 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Job {
+    int start, finish, profit;
+};
+
+// Sort jobs by finish time
+bool compare(Job a, Job b) {
+    return a.finish < b.finish;
+}
+
+// Find latest non-conflicting job
+int latestNonConflict(Job arr[], int i) {
+    for (int j = i - 1; j >= 0; j--) {
+        if (arr[j].finish <= arr[i].start)
+            return j;
+    }
+    return -1;
+}
+
+int findMaxProfit(Job arr[], int n) {
+    sort(arr, arr + n, compare);
+
+    int dp[n];
+    dp[0] = arr[0].profit;
+
+    for (int i = 1; i < n; i++) {
+        int includeProfit = arr[i].profit;
+        int l = latestNonConflict(arr, i);
+
+        if (l != -1)
+            includeProfit += dp[l];
+
+        dp[i] = max(includeProfit, dp[i - 1]);
+    }
+
+    return dp[n - 1];
+}
+
+int main() {
+    Job arr[] = {
+        {1, 3, 5},
+        {2, 5, 6},
+        {4, 6, 5},
+        {6, 7, 4},
+        {5, 8, 11},
+        {7, 9, 2}
+    };
+
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    cout << "Maximum Profit = " << findMaxProfit(arr, n);
+
+    return 0;
+}
